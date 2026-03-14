@@ -110,8 +110,8 @@
       // const ssid = cfg.ap_ssid ? `Para empezar conectate al WiFi: ${cfg.ap_ssid}` : "WiFi local";
       // networkHint.textContent = `${ssid} | e ingresa en el navegador la URL: ${url}`;
       const url = cfg.ap_url || window.location.origin;
-      const ssid = cfg.ap_ssid ? `Para empezar conectate al WiFi: <strong>${cfg.ap_ssid}</strong>` : "WiFi local";
-      networkHint.innerHTML = `${ssid}<br>Y abrí en tu navegador: <strong>${url}</strong>`;
+      const ssid = cfg.ap_ssid ? `Para utilizarlo en otro dispositivo recorda conectarte al WiFi: <strong>${cfg.ap_ssid}</strong>` : "WiFi local";
+      networkHint.innerHTML = `${ssid}<br>Y abrir en el navegador: <strong>${url}</strong>`;
       sourceTag.textContent = `source: ${cfg.active_source || "-"}`;
     } catch {
       networkHint.textContent = "Modo local";
