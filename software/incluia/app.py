@@ -141,19 +141,5 @@ def create_server(config: AppConfig | None = None) -> tuple[Flask, SocketIO, App
     def on_clear_history() -> None:
         history.clear()
         socketio.emit("history_cleared", {"t_server_ms": now_ms()})
-
-    @app.route('/manifest.json')
-    def serve_manifest():
-        path = root_dir / "web" / "manifest.json"
-        print("MANIFEST PATH:", path)
-        return send_file(path, mimetype='application/manifest+json')
-    
-    @app.route('/favicon.ico')
-    def favicon():
-        path = root_dir / "web" / "static"
-        print("FAVICON PATH:", path)
-        return send_from_directory(path, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
-    
-    print(app.url_map)
-
+        
     return app, socketio, cfg

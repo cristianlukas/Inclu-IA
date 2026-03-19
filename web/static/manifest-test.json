@@ -1,0 +1,13 @@
+{
+  "name": "Test App",
+  "short_name": "Inclu-IA",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
