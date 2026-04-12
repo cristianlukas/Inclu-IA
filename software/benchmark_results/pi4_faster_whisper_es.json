@@ -1,0 +1,106 @@
+{
+  "generated_at_epoch_s": 1776028205.4954362,
+  "language": "es",
+  "compute_type": "int8",
+  "rows": [
+    {
+      "model": "tiny",
+      "sample_id": "spanish_lesson_1_dialogue_1",
+      "filename": "SpanishL1D1.ogg",
+      "audio_seconds": 20.967619,
+      "elapsed_seconds": 5.3891238120004346,
+      "realtime_factor": 0.2570212579692732,
+      "expected_token_recall": 1.0,
+      "matched_expected": true,
+      "transcript": "¡Ya hay algo bueno, between Carmen y Roberto! ¡Hola Roberto, ¿cómo estás? Yo estoy bien gracias y tú, ¿cómo estás? Estoy bien, hay algo nuevo para contar, no mucho. Adiós Roberto, adiós hasta mañana."
+    },
+    {
+      "model": "tiny",
+      "sample_id": "spanish_lesson_1_dialogue_2",
+      "filename": "SpanishL1D2.ogg",
+      "audio_seconds": 19.033107,
+      "elapsed_seconds": 5.715158984000482,
+      "realtime_factor": 0.30027462063868404,
+      "expected_token_recall": 0.6,
+      "matched_expected": false,
+      "transcript": "De ahí a lo que tú, ¿Bitú en Señor González y Señor Aperes? Bueno, días, como si ya hemos ofredido, me llamo a Anaperes, y usted, ¿cómo si llaman? Soy Luis González, encantado. En cantada."
+    },
+    {
+      "model": "tiny",
+      "sample_id": "rioplatense_fast_speech",
+      "filename": "Siqueresirte_v1.ogg",
+      "audio_seconds": 2.484535,
+      "elapsed_seconds": 2.6823544589997255,
+      "realtime_factor": 1.0796203148676615,
+      "expected_token_recall": 0.8,
+      "matched_expected": false,
+      "transcript": "Si creíte andate, yo no te voy a parar."
+    },
+    {
+      "model": "base",
+      "sample_id": "spanish_lesson_1_dialogue_1",
+      "filename": "SpanishL1D1.ogg",
+      "audio_seconds": 20.967619,
+      "elapsed_seconds": 9.644306350000079,
+      "realtime_factor": 0.4599619227152153,
+      "expected_token_recall": 0.9615384615384616,
+      "matched_expected": false,
+      "transcript": "ya lo van, between Carmen and Roberto. Hola Roberto, ¿cómo estás? Yo estoy bien, gracias. ¿Y tú? ¿Cómo estás? Estoy bien. ¿Hay algo nuevo para contar? No mucho. Adiós Roberto. Adiós esta mañana."
+    },
+    {
+      "model": "base",
+      "sample_id": "spanish_lesson_1_dialogue_2",
+      "filename": "SpanishL1D2.ogg",
+      "audio_seconds": 19.033107,
+      "elapsed_seconds": 8.214698941999814,
+      "realtime_factor": 0.4316005233407143,
+      "expected_token_recall": 1.0,
+      "matched_expected": true,
+      "transcript": "Dialog 2, between señor González y señora Pérez. Buenos días, ¿cómo se llama usted? Me llamo Ana Pérez y usted, ¿cómo se llama? Soy Luis González, encantado, encantada."
+    },
+    {
+      "model": "base",
+      "sample_id": "rioplatense_fast_speech",
+      "filename": "Siqueresirte_v1.ogg",
+      "audio_seconds": 2.484535,
+      "elapsed_seconds": 4.860547094999674,
+      "realtime_factor": 1.9563206374632172,
+      "expected_token_recall": 0.7,
+      "matched_expected": false,
+      "transcript": "Si queréis te han dado, yo no te voy a parar."
+    },
+    {
+      "model": "small",
+      "sample_id": "spanish_lesson_1_dialogue_1",
+      "filename": "SpanishL1D1.ogg",
+      "audio_seconds": 20.967619,
+      "elapsed_seconds": 25.746193630000562,
+      "realtime_factor": 1.2279025877950454,
+      "expected_token_recall": 1.0,
+      "matched_expected": true,
+      "transcript": "Dialog 1 between Carmen and Roberto. Hola Roberto, ¿cómo estás? Yo estoy bien, gracias. ¿Y tú, cómo estás? ¿Estoy bien? ¿Hay algo nuevo para contar? No mucho. Adiós Roberto, adiós hasta mañana."
+    },
+    {
+      "model": "small",
+      "sample_id": "spanish_lesson_1_dialogue_2",
+      "filename": "SpanishL1D2.ogg",
+      "audio_seconds": 19.033107,
+      "elapsed_seconds": 24.476444066000113,
+      "realtime_factor": 1.285993089094708,
+      "expected_token_recall": 0.95,
+      "matched_expected": false,
+      "transcript": "Diálogo 2, entre señor González y señor Aperes. Buenos días. ¿Cómo se llama usted? Me llamo Ana Aperes. ¿Y usted cómo se llama? Soy Luis González. Encantado. Encantada."
+    },
+    {
+      "model": "small",
+      "sample_id": "rioplatense_fast_speech",
+      "filename": "Siqueresirte_v1.ogg",
+      "audio_seconds": 2.484535,
+      "elapsed_seconds": 37.3490977700003,
+      "realtime_factor": 15.032630963138091,
+      "expected_token_recall": 0.6,
+      "matched_expected": false,
+      "transcript": "Si queréis, te anda atre, eso no te voy a parar."
+    }
+  ]
+}
