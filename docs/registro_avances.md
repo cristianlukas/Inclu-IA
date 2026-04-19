@@ -12,11 +12,13 @@ Este documento sirve como bitácora centralizada para que Patricio (Frontend) y 
 ## Eluney (Backend / STT / Raspberry Pi)
 
 ### Semana 1
-- **Fecha:** DD/MM/AAAA
+- **Fecha:** 15/04/2026
 - **Avances:** 
-  - (Completar aquí qué tareas del plan semanal se lograron)
+  - Esta semana logre instalar todo lo necesario en la raspberry pi 4.
+  - Realice el [benchmark de algunos modelos STT](https://github.com/cristianlukas/UNLZ-INCLU-IA/commit/e26be5b7767bd9594cc0fa6bc109846883d38f31), siendo faster_whisper tiny y vosk los más prometedores para subtitulado en tiempo real.
 - **Problemas/Bloqueos:**
-  - (Completar si hubo problemas técnicos o impedimentos)
+  - Detecte que desde telefonos los subtitulos se congelaban, pero desde PC se mostraban correctamente.
+  - 
 
 ### Semana 2
 - **Fecha:** DD/MM/AAAA
