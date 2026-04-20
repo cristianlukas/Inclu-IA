@@ -137,8 +137,9 @@ INCLUIA_DRIVER=faster_whisper
 INCLUIA_FW_MODEL=base
 INCLUIA_FW_COMPUTE_TYPE=int8
 INCLUIA_FW_LANGUAGE=es
-INCLUIA_FW_PHRASE_LIMIT_S=4
+INCLUIA_FW_PHRASE_LIMIT_S=3
 INCLUIA_FW_VAD=1
+INCLUIA_FW_QUEUE_MAX_CHUNKS=6
 ```
 
 Si el adaptador USB no trabaja bien a 16000 Hz:
@@ -189,6 +190,75 @@ Hacer una prueba de 20 a 30 minutos y anotar:
 Registrar eso en:
 
 - `docs/registro_avances.md`
+
+## Paso 8: protocolo especifico de streaming (obligatorio)
+
+Contexto:
+
+- el driver `faster_whisper` ahora usa captura continua en background + cola de chunks
+- eso evita el bloqueo de captura durante transcripcion
+
+Objetivo de la prueba:
+
+- validar que no se frene el flujo de subtitulos en sesiones de 20 min
+- medir si la cola se satura y con que frecuencia
+
+### Perfil 1 (recomendado inicial Pi 4)
+
+```env
+INCLUIA_DRIVER=faster_whisper
+INCLUIA_FW_MODEL=base
+INCLUIA_FW_COMPUTE_TYPE=int8
+INCLUIA_FW_LANGUAGE=es
+INCLUIA_FW_PHRASE_LIMIT_S=3
+INCLUIA_FW_VAD=1
+INCLUIA_FW_QUEUE_MAX_CHUNKS=6
+```
+
+### Perfil 2 (fallback conservador)
+
+```env
+INCLUIA_DRIVER=faster_whisper
+INCLUIA_FW_MODEL=tiny
+INCLUIA_FW_COMPUTE_TYPE=int8
+INCLUIA_FW_LANGUAGE=es
+INCLUIA_FW_PHRASE_LIMIT_S=4
+INCLUIA_FW_VAD=1
+INCLUIA_FW_QUEUE_MAX_CHUNKS=8
+```
+
+### Ejecucion y observacion
+
+1. Correr backend:
+
+```bash
+cd /home/pi/UNLZ-INCLU-IA/software
+source .venv/bin/activate
+python server.py --driver faster_whisper
+```
+
+2. Mantener lectura continua 20 minutos (ritmo normal de clase).
+3. Mirar logs y contar apariciones de:
+- `Audio en cola saturado: se descartaron chunks viejos para mantener streaming`
+4. Validar desde celular:
+- que no se congelen subtitulos
+- que no haya pausas largas repetidas
+
+### Criterio rapido de decision
+
+- Si Perfil 1 no satura (o satura muy poco), mantener Perfil 1.
+- Si Perfil 1 satura seguido, usar Perfil 2 para demo estable.
+- Si ambos saturan mucho, pasar a `whisper_cpp` para clase en vivo y dejar `faster_whisper` para respaldo.
+
+### Plantilla minima para registrar en `docs/registro_avances.md`
+
+- fecha
+- perfil usado (1 o 2)
+- microfono/adaptador
+- duracion total (min)
+- cantidad de eventos \"cola saturada\"
+- percepcion de latencia (baja/media/alta)
+- decision (seguir / ajustar / cambiar driver)
 
 ## Recomendacion inicial para tu hardware
 

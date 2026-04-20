@@ -76,3 +76,24 @@ Validar el microfono con ALSA:
 arecord -l
 arecord -D plughw:1,0 -f S16_LE -r 48000 -c 1 -d 5 /tmp/test-mic.wav
 ```
+
+## faster-whisper en modo streaming (captura continua)
+
+Desde esta version, `faster_whisper` captura audio en background mientras transcribe chunks en una cola.
+
+Variables utiles en `.env`:
+
+- `INCLUIA_FW_PHRASE_LIMIT_S`: duracion del chunk (ej: 3 o 4).
+- `INCLUIA_FW_QUEUE_MAX_CHUNKS`: tamano maximo de cola de chunks (default 8).
+
+Recomendacion Pi 4:
+
+- `INCLUIA_FW_PHRASE_LIMIT_S=3`
+- `INCLUIA_FW_QUEUE_MAX_CHUNKS=6`
+
+Si la cola se satura, se descartan chunks viejos para priorizar latencia de streaming.
+
+Mensaje de diagnostico esperado cuando hay saturacion:
+
+- `Audio en cola saturado: se descartaron chunks viejos para mantener streaming`
+
