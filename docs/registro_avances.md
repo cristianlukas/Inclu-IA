@@ -30,13 +30,20 @@ Este documento sirve como bitácora centralizada para que Patricio (Frontend) y 
 ## Patricio (Frontend / UX / Accesibilidad)
 
 ### Semana 1
-- **Fecha:** DD/MM/AAAA
+- **Fecha:** 15/03/2026
 - **Avances:** 
-  - (Completar aquí qué tareas del plan semanal se lograron)
+  - Cambios a nivel UI, accesibilidad y ajustes en el theme (6e45f7536efa3de85a37c03d7d5be359d9d85f6c)
 - **Problemas/Bloqueos:**
-  - (Completar si hubo problemas técnicos o impedimentos)
+  - Sin bloqueos
 
 ### Semana 2
+- **Fecha:** 19/03/2026
+- **Avances:**
+  - Modificación para habilitar la app en modo PWA, además hice pruebas de carga, conectando multiples dispositivos (310efe287b506e0ad6c4ecfb8a8ebb3a3650bf82)
+- **Problemas/Bloqueos:**
+  - No logré que funcione la PWA desde fuera de localhost, hay un problema de certificados donde para ser PWA se requiere que la app se sirva a través de https, y no logré cargar correctamente el certificado
+
+### Semana 3
 - **Fecha:** DD/MM/AAAA
 - **Avances:** 
 - **Problemas/Bloqueos:**
