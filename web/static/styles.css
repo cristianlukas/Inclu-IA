@@ -119,6 +119,19 @@ h2 {
   margin-top: 0.25rem;
 }
 
+.onboarding-card {
+  margin-top: 0.55rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  background: color-mix(in srgb, var(--panel) 90%, var(--accent) 10%);
+}
+
+.onboarding-card p {
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
 /* Badge */
 .pill {
   display: inline-flex;
@@ -168,6 +181,37 @@ button {
 
 button:hover {
   border-color: var(--accent);
+}
+
+.mode-panel {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mode-header h2 {
+  margin: 0;
+}
+
+.mode-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.mode-actions button {
+  padding: 0.5rem 0.6rem;
+}
+
+.mode-actions button.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent-strong);
 }
 
 /* Live section */
@@ -270,6 +314,10 @@ button:hover {
   .panel {
     border-radius: 12px;
     padding: 0.75rem;
+  }
+
+  .mode-actions {
+    grid-template-columns: 1fr;
   }
 }
 

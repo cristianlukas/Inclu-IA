@@ -2,6 +2,7 @@
   const appEl = document.querySelector(".app");
   const statusPill = document.getElementById("statusPill");
   const networkHint = document.getElementById("networkHint");
+  const onboardingText = document.getElementById("onboardingText");
   const liveCaption = document.getElementById("liveCaption");
   const historyList = document.getElementById("historyList");
   const sourceTag = document.getElementById("sourceTag");
@@ -9,8 +10,30 @@
   const contrastMode = document.getElementById("contrastMode");
   const clearBtn = document.getElementById("clearBtn");
   const menuToggle = document.getElementById("menuToggle");
+  const modeHint = document.getElementById("modeHint");
+  const modeLiveBtn = document.getElementById("modeLiveBtn");
+  const modeDemoBtn = document.getElementById("modeDemoBtn");
+  const modeReplayBtn = document.getElementById("modeReplayBtn");
+
+  const DEMO_LINES = [
+    "Bienvenidos a Inclu-IA.",
+    "Este es un subtitulo simulado para validar lectura.",
+    "Modo demo activo, no depende del backend STT.",
+    "Puedes usar replay para revisar frases anteriores.",
+  ];
+
+  const MODES = {
+    LIVE: "live",
+    DEMO: "demo",
+    REPLAY: "replay",
+  };
 
   let socket = null;
+  let currentMode = MODES.LIVE;
+  let demoInterval = null;
+  let replayInterval = null;
+  let lastHistoryItems = [];
+  let lastConfig = null;
 
   const savedFont = localStorage.getItem("incluia_font");
   if (savedFont && ["s", "m", "l"].includes(savedFont)) {
@@ -26,9 +49,7 @@
   }
 
   contrastMode.value =
-  savedTheme === "light" ? "normal" :
-  savedTheme === "contrast" ? "high" :
-  "oled";
+    savedTheme === "light" ? "normal" : savedTheme === "contrast" ? "high" : "oled";
 
   const fmtTime = (ms) => {
     if (!ms) return "";
@@ -45,10 +66,12 @@
       listening: "Escuchando",
       transcribing: "Transcribiendo",
       error: "Error",
+      demo: "Demo",
+      replay: "Replay",
     };
 
     const label = map[stateName] || stateName || "Desconocido";
-    statusPill.textContent = label;
+    statusPill.textContent = detail ? `${label}: ${detail}` : label;
 
     if (stateName === "error") {
       statusPill.style.background = "#ffe8e8";
@@ -77,19 +100,15 @@
 
     item.appendChild(ts);
     item.appendChild(content);
-    // historyList.appendChild(item);                       // Para que el mas nuevo este abajo
-    historyList.insertBefore(item, historyList.firstChild); // Para que el mas nuevo este arriba
+    historyList.insertBefore(item, historyList.firstChild);
 
     if (historyList.children.length > 300) {
-      historyList.removeChild(historyList.firstElementChild);
+      historyList.removeChild(historyList.lastElementChild);
     }
-    // historyList.scrollTop = historyList.scrollHeight;    // Para que al llegar un dato nuevo el scroll vaya al mas nuevo automaticamentes
   };
 
   const onCaption = (caption) => {
-    if (!caption || !caption.text) {
-      return;
-    }
+    if (!caption || !caption.text) return;
 
     if (caption.source) {
       sourceTag.textContent = `source: ${caption.source}`;
@@ -97,7 +116,6 @@
 
     if (caption.is_final) {
       appendHistoryItem(caption);
-      // Keep the last final caption visible in the live line.
       liveCaption.textContent = caption.text;
       return;
     }
@@ -105,66 +123,140 @@
     liveCaption.textContent = caption.text;
   };
 
-  const loadConfig = async () => {
-    try {
-      const response = await fetch("/api/config");
-      if (!response.ok) return null;
-      const cfg = await response.json();
+  const setModeUI = (mode) => {
+    modeLiveBtn.classList.toggle("active", mode === MODES.LIVE);
+    modeDemoBtn.classList.toggle("active", mode === MODES.DEMO);
+    modeReplayBtn.classList.toggle("active", mode === MODES.REPLAY);
 
-      // const url = cfg.ap_url || window.location.origin;
-      // const ssid = cfg.ap_ssid ? `Para empezar conectate al WiFi: ${cfg.ap_ssid}` : "WiFi local";
-      // networkHint.textContent = `${ssid} | e ingresa en el navegador la URL: ${url}`;
-      const url = cfg.ap_url || window.location.origin;
-      const ssid = cfg.ap_ssid ? `Para utilizarlo en otro dispositivo recorda conectarte al WiFi: <strong>${cfg.ap_ssid}</strong>` : "WiFi local";
-      networkHint.innerHTML = `${ssid}<br>Y abrir en el navegador: <strong>${url}</strong>`;
-      sourceTag.textContent = `source: ${cfg.active_source || "-"}`;
-      return cfg;
-    } catch {
-      networkHint.textContent = "Modo local";
-      return null;
-    }
+    const map = {
+      [MODES.LIVE]: "En vivo",
+      [MODES.DEMO]: "Demo",
+      [MODES.REPLAY]: "Replay",
+    };
+    modeHint.textContent = map[mode] || "Auto";
+  };
+
+  const stopAllIntervals = () => {
+    if (demoInterval) clearInterval(demoInterval);
+    if (replayInterval) clearInterval(replayInterval);
+    demoInterval = null;
+    replayInterval = null;
+  };
+
+  const updateOnboarding = (cfg) => {
+    const url = cfg?.ap_url || window.location.origin;
+    const ssid = cfg?.ap_ssid || "Inclu-IA-AP";
+    onboardingText.innerHTML = `1) Conectate a <strong>${ssid}</strong>. 2) Abrí <strong>${url}</strong>. 3) Esperá estado "Escuchando".`;
   };
 
   const startDemoMode = () => {
-    setStatus("idle", "Modo demo local");
-
-    const lines = [
-      "Demo local activa.",
-      "No hay backend Socket.IO disponible.",
-      "Conecta el servidor para subtitulos reales.",
-    ];
+    stopAllIntervals();
+    currentMode = MODES.DEMO;
+    setModeUI(currentMode);
+    setStatus("demo", "Subtitulos simulados");
+    sourceTag.textContent = "source: demo";
+    networkHint.textContent = "Modo demo local (sin backend)";
 
     let idx = 0;
+    demoInterval = setInterval(() => {
+      const text = DEMO_LINES[idx % DEMO_LINES.length];
+      idx += 1;
 
-    setInterval(() => {
-      const text = lines[idx % lines.length];
-      idx++;
-
-      // partial
       onCaption({
         text,
         is_final: false,
         t_server_ms: Date.now(),
-        source: "demo"
+        source: "demo",
       });
 
-      // final después de 1 segundo
       setTimeout(() => {
         onCaption({
           text,
           is_final: true,
           t_server_ms: Date.now(),
-          source: "demo"
+          source: "demo",
         });
-      }, 1000);
+      }, 900);
+    }, 2300);
+  };
 
-    }, 2500);
+  const startReplayMode = () => {
+    stopAllIntervals();
+    currentMode = MODES.REPLAY;
+    setModeUI(currentMode);
+    setStatus("replay", "Reproduciendo historial");
+    sourceTag.textContent = "source: replay";
+
+    const items = [...lastHistoryItems].reverse();
+    if (!items.length) {
+      liveCaption.textContent = "Sin historial para replay. Cambiá a demo o en vivo.";
+      return;
+    }
+
+    let idx = 0;
+    replayInterval = setInterval(() => {
+      const item = items[idx % items.length];
+      idx += 1;
+      onCaption({
+        text: item.text,
+        is_final: true,
+        t_server_ms: Date.now(),
+        source: "replay",
+      });
+    }, 1800);
+  };
+
+  const startLiveMode = () => {
+    stopAllIntervals();
+    currentMode = MODES.LIVE;
+    setModeUI(currentMode);
+    networkHint.textContent = "Conectando con servidor en vivo...";
+    connectSocket(lastConfig);
+  };
+
+  const loadConfig = async () => {
+    try {
+      const response = await fetch("/api/config");
+      if (!response.ok) return null;
+      const cfg = await response.json();
+      lastConfig = cfg;
+
+      const url = cfg.ap_url || window.location.origin;
+      const ssid = cfg.ap_ssid ? `Conectate al WiFi: ${cfg.ap_ssid}` : "WiFi local";
+      networkHint.textContent = `${ssid} | URL: ${url}`;
+      sourceTag.textContent = `source: ${cfg.active_source || "-"}`;
+      updateOnboarding(cfg);
+      return cfg;
+    } catch {
+      networkHint.textContent = "Sin acceso a /api/config. Usando modo local.";
+      updateOnboarding(null);
+      return null;
+    }
+  };
+
+  const loadHistory = async () => {
+    try {
+      const response = await fetch("/api/history");
+      if (!response.ok) return;
+      const payload = await response.json();
+      lastHistoryItems = Array.isArray(payload.items) ? payload.items : [];
+    } catch {
+      lastHistoryItems = [];
+    }
   };
 
   const connectSocket = (cfg = null) => {
+    if (currentMode !== MODES.LIVE) return;
+
     if (typeof io !== "function") {
       startDemoMode();
       return;
+    }
+
+    if (socket) {
+      socket.off();
+      socket.disconnect();
+      socket = null;
     }
 
     const transport = cfg?.socket_transport || "polling";
@@ -187,45 +279,57 @@
     socket = io(socketOptions);
 
     socket.on("connect", () => {
+      if (currentMode !== MODES.LIVE) return;
       setStatus("idle", "Conectado");
+      networkHint.textContent = "Conectado al servidor en vivo.";
     });
 
     socket.on("disconnect", () => {
-      setStatus("error", "Desconectado, reintentando");
+      if (currentMode !== MODES.LIVE) return;
+      setStatus("error", "Desconectado. Reintentando...");
+      networkHint.textContent = "Se perdió conexión. Reintentando...";
     });
 
     socket.on("connect_error", (err) => {
-      setStatus("error", `Socket.IO: ${err?.message || "fallo de conexion"}`);
+      if (currentMode !== MODES.LIVE) return;
+      setStatus("error", "Servidor no disponible");
+      networkHint.textContent = `Error de conexión: ${err?.message || "desconocido"}`;
     });
 
     socket.on("status", (payload) => {
-      if (!payload) return;
+      if (currentMode !== MODES.LIVE || !payload) return;
       setStatus(payload.state, payload.detail);
     });
 
-    socket.on("caption", onCaption);
+    socket.on("caption", (caption) => {
+      if (currentMode !== MODES.LIVE) return;
+      onCaption(caption);
+      if (caption?.is_final) {
+        lastHistoryItems.unshift(caption);
+        if (lastHistoryItems.length > 300) lastHistoryItems.length = 300;
+      }
+    });
 
     socket.on("history", (payload) => {
+      if (currentMode !== MODES.LIVE) return;
       clearHistoryUI();
       const items = payload && Array.isArray(payload.items) ? payload.items : [];
+      lastHistoryItems = [...items];
       items.forEach((item) => appendHistoryItem(item));
     });
 
     socket.on("history_cleared", () => {
       clearHistoryUI();
       liveCaption.textContent = "";
+      lastHistoryItems = [];
     });
   };
 
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/static/serviceWorker.js')
-        .then(reg => {
-          console.log('Service Worker registrado correctamente:', reg);
-        })
-        .catch(err => {
-          console.error('Error al registrar Service Worker:', err);
-        });
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/static/serviceWorker.js").catch(() => {
+        // Best effort only.
+      });
     });
   }
 
@@ -236,12 +340,9 @@
 
   contrastMode.addEventListener("change", (e) => {
     const value = e.target.value;
-
-    let theme;
-    if (value === "normal") theme = "light";
-    else if (value === "high") theme = "contrast";
-    else if (value === "oled") theme = "oled";
-
+    let theme = "light";
+    if (value === "high") theme = "contrast";
+    if (value === "oled") theme = "oled";
     appEl.dataset.theme = theme;
     localStorage.setItem("incluia_theme", theme);
   });
@@ -249,8 +350,9 @@
   clearBtn.addEventListener("click", async () => {
     clearHistoryUI();
     liveCaption.textContent = "";
+    lastHistoryItems = [];
 
-    if (socket) {
+    if (socket && currentMode === MODES.LIVE) {
       socket.emit("clear_history");
     }
 
@@ -265,7 +367,20 @@
     menuToggle.parentElement.classList.toggle("open");
   });
 
-  loadConfig().then((cfg) => {
+  modeLiveBtn.addEventListener("click", () => {
+    startLiveMode();
+  });
+
+  modeDemoBtn.addEventListener("click", () => {
+    startDemoMode();
+  });
+
+  modeReplayBtn.addEventListener("click", () => {
+    startReplayMode();
+  });
+
+  Promise.all([loadConfig(), loadHistory()]).then(([cfg]) => {
+    setModeUI(currentMode);
     connectSocket(cfg);
   });
 })();

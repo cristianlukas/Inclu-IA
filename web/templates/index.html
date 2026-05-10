@@ -52,8 +52,23 @@
             </div>
           </div>
           <p id="networkHint" class="muted">Conectando...</p>
+          <div id="onboardingCard" class="onboarding-card" role="note" aria-live="polite">
+            <p id="onboardingText">Preparando guía de conexión...</p>
+          </div>
         </div>
       </header>
+
+      <section class="panel mode-panel" aria-label="Modo de operación">
+        <div class="mode-header">
+          <h2>Modo</h2>
+          <span id="modeHint" class="tag">Auto</span>
+        </div>
+        <div class="mode-actions">
+          <button id="modeLiveBtn" type="button">En vivo</button>
+          <button id="modeDemoBtn" type="button">Demo</button>
+          <button id="modeReplayBtn" type="button">Replay</button>
+        </div>
+      </section>
 
       <section class="panel live" aria-live="polite" aria-atomic="true">
         <div class="live-header">
