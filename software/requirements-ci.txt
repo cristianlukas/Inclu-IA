@@ -1,0 +1,11 @@
+Flask>=3.0,<4
+Flask-SocketIO>=5.3,<6
+python-socketio>=5.11,<6
+python-engineio>=4.9,<5
+PyYAML>=6.0,<7
+python-dotenv>=1.0,<2
+requests>=2.32,<3
+urllib3>=2,<3
+charset-normalizer>=3,<4
+chardet>=5,<6
+pytest>=8.0,<9
