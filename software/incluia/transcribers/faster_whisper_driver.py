@@ -142,11 +142,10 @@ class FasterWhisperTranscriber(Transcriber):
         recognizer = sr.Recognizer()
         recognizer.dynamic_energy_threshold = True
 
-        source_context = None
+        source = None
         requested_sample_rate = self.sample_rate
         try:
-            source_context = self._open_microphone(requested_sample_rate)
-            source = source_context.__enter__()
+            source = self._open_microphone(requested_sample_rate)
         except Exception as exc:
             if requested_sample_rate is None:
                 on_status(
@@ -166,8 +165,7 @@ class FasterWhisperTranscriber(Transcriber):
                 )
             )
             try:
-                source_context = self._open_microphone(None)
-                source = source_context.__enter__()
+                source = self._open_microphone(None)
             except Exception as retry_exc:
                 on_status(
                     StatusEvent(
@@ -224,7 +222,8 @@ class FasterWhisperTranscriber(Transcriber):
                 )
 
         try:
-            recognizer.adjust_for_ambient_noise(source, duration=1)
+            with source as opened_source:
+                recognizer.adjust_for_ambient_noise(opened_source, duration=1)
             on_status(
                 StatusEvent(
                     state="listening",
@@ -255,6 +254,3 @@ class FasterWhisperTranscriber(Transcriber):
                     stop_listening(wait_for_stop=False)
                 except Exception:
                     pass
-
-            if source_context is not None:
-                source_context.__exit__(None, None, None)
